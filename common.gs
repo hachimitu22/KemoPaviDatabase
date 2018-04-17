@@ -19,8 +19,11 @@ function getAreas() {
     const s = ss.getSheetByName('_基本データ');
     const range = s.getRange('C3:C');
     const values = range.getValues();
-
-    _commondata.areas = values;
+    const tValues = transpose(values);
+    
+    _commondata.areas = tValues[0].filter(function(value) {
+      return value !== '';
+    });
   }
   
   return _commondata.areas;
@@ -32,8 +35,11 @@ function getTimeZones() {
     const s = ss.getSheetByName('_基本データ');
     const range = s.getRange('D3:D');
     const values = range.getValues();
-
-    _commondata.timeZones = values;
+    const tValues = transpose(values);
+    
+    _commondata.timeZones = tValues[0].filter(function(value) {
+      return value !== '';
+    });
   }
   
   return _commondata.timeZones;
@@ -96,8 +102,10 @@ function getFriendNames() {
     const range = s.getRange('B3:B');
     const values = range.getValues();
     const tValues = transpose(values);
-
-    _commondata.FriendNames = tValues;
+    
+    _commondata.FriendNames = tValues[0].filter(function(value) {
+      return value !== '';
+    });
   }
   
   return _commondata.FriendNames;
@@ -111,7 +119,9 @@ function getFriendNamesNotSort() {
     const values = range.getValues();
     const tValues = transpose(values);
 
-    _commondata.FriendNamesNotSort = tValues;
+    _commondata.FriendNamesNotSort = tValues[0].filter(function(value) {
+      return value !== '';
+    });
   }
   
   return _commondata.FriendNamesNotSort;

@@ -1,79 +1,118 @@
+var _commondata = {};
+
 function transpose(arr) {
   return arr[0].map(function (_, c) { return arr.map(function (r) { return r[c]; }); });
 }
 
+function getInputSpreadSheet() {
+  if(!_commondata.inputSpreadSheet) {
+    const ss = SpreadsheetApp.openById('1cAujeky_O_8bIz8vUZoyQC4VCXVh5l9G3lD6ph9ckFk');
+    _commondata.inputSpreadSheet = ss;
+  }
+  
+  return _commondata.inputSpreadSheet;
+}
+
 function getAreas() {
-  return [
-    'さばんな',
-    'こうざん',
-    'みずべ'
-  ];
+  if(!_commondata.areas) {
+    const ss = getInputSpreadSheet();
+    const s = ss.getSheetByName('_基本データ');
+    const range = s.getRange('C3:C');
+    const values = range.getValues();
+
+    _commondata.areas = values;
+  }
+  
+  return _commondata.areas;
 }
 
 function getTimeZones() {
-  return [
-    '昼',
-    '夜'
-  ];
+  if(!_commondata.timeZones) {
+    const ss = getInputSpreadSheet();
+    const s = ss.getSheetByName('_基本データ');
+    const range = s.getRange('D3:D');
+    const values = range.getValues();
+
+    _commondata.timeZones = values;
+  }
+  
+  return _commondata.timeZones;
 }
 
 function getAreaOrder() {
-  const areas = getAreas();
-  const timeZones = getTimeZones();
-  var order = [];
-  
-  areas.forEach(function(area) {
-    timeZones.forEach(function(timeZone) {
-      order.push({ 'area': area, 'timeZone': timeZone });
+  if(!_commondata.areaOrder) {
+    const areas = getAreas();
+    const timeZones = getTimeZones();
+    var order = [];
+    
+    areas.forEach(function(area) {
+      timeZones.forEach(function(timeZone) {
+        order.push({ 'area': area, 'timeZone': timeZone });
+      });
     });
-  });
+    
+    _commondata.areaOrder = order;
+  }
   
-  return order;
+  return _commondata.areaOrder;
 }
 
 function getAreaOffsets() {
-  const areas = getAreas();
-  const timeZones = getTimeZones();
-  const timeZoneCount = timeZones.length;
-  var offsets = {};
-
-  areas.forEach(function(area, index) {
-    offsets[area] = timeZoneCount * index;
-  });
+  if(!_commondata.areaOffsets) {
+    const areas = getAreas();
+    const timeZones = getTimeZones();
+    const timeZoneCount = timeZones.length;
+    var offsets = {};
+    
+    areas.forEach(function(area, index) {
+      offsets[area] = timeZoneCount * index;
+    });
+    
+    _commondata.areaOffsets = offsets;
+  }
   
-  return offsets;
+  return _commondata.areaOffsets;
 }
 
 function getTimeZoneOffsets() {
-  const timeZones = getTimeZones();
-  var offsets = {};
+  if(!_commondata.timeZoneOffsets) {
+    const timeZones = getTimeZones();
+    var offsets = {};
+    
+    timeZones.forEach(function(timeZone, index) {
+      offsets[timeZone] = index;
+    });
+    
+    _commondata.timeZoneOffsets = offsets;
+  }
   
-  timeZones.forEach(function(timeZone, index) {
-    offsets[timeZone] = index;
-  });
-  
-  return offsets;
+  return _commondata.timeZoneOffsets;
 }
 
 function getFriendNames() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const s = ss.getSheetByName('_基本データ');
-  const range = s.getRange('B3:B');
-  const values = range.getValues();
-  const tValues = transpose(values);
+  if(!_commondata.FriendNames) {
+    const ss = getInputSpreadSheet();
+    const s = ss.getSheetByName('_基本データ');
+    const range = s.getRange('B3:B');
+    const values = range.getValues();
+    const tValues = transpose(values);
+
+    _commondata.FriendNames = tValues;
+  }
   
-  return tValues[0];
+  return _commondata.FriendNames;
 }
 
 function getFriendNamesNotSort() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const s = ss.getSheetByName('_基本データ');
-  const range = s.getRange('A3:A');
-  const values = range.getValues();
-  const tValues = transpose(values);
-  const arr = tValues[0].filter(function(value) {
-    return value !== '';
-  });
+  if(!_commondata.FriendNamesNotSort) {
+    const ss = getInputSpreadSheet();
+    const s = ss.getSheetByName('_基本データ');
+    const range = s.getRange('A3:A');
+    const values = range.getValues();
+    const tValues = transpose(values);
+
+    _commondata.FriendNamesNotSort = tValues;
+  }
   
-  return arr;
+  return _commondata.FriendNamesNotSort;
 }

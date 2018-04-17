@@ -2,8 +2,8 @@ function createPutterHobby() {
   var _class = createPutterBase();
   
   _class._getRowOffset = function(data) {
-    const areaOffset = { 'さばんな': 0, 'こうざん': 2, 'みずべ': 4 }[data.area];
-    const timeZoneOffset = { '昼': 0, '夜': 1 }[data.timeZone];
+    const areaOffset = getAreaOffsets()[data.area];
+    const timeZoneOffset = getTimeZoneOffsets()[data.timeZone];
     
     return areaOffset + timeZoneOffset;
   };

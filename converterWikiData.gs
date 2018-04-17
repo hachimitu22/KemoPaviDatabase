@@ -4,15 +4,20 @@ function createConverterWikiData() {
   const areaAndTimeZone = getAreaOrder();
   const recordStartOffset = 3;
 
-  var getNamePosition = function(values, friend) {
+  var getNamePositions = function(values, friends) {
+    var positions = {};
+    
     for(var i = 0, len1 = values.length; i < len1; i++) {
       for(var j = 0, len2 = values[i].length; j < len2; j++) {
-        if(values[i][j] === friend) {
-          return { 'x': j, 'y': i };
+        var value = values[i][j];
+        
+        if(friends.indexOf(value) >= 0 && !positions[value]) {
+          positions[value] = { 'x': j, 'y': i };
         }
       }
     }
-    return { 'x': -1, 'y': -1 };
+    
+    return positions;
   };
   var getSize = function(values, namePos) {
     var count = 0;
@@ -30,9 +35,10 @@ function createConverterWikiData() {
   
   _class.makeDataArray = function(values, friends) {
     var arr = [];
+    const positions = getNamePositions(values, friends);
     
     friends.forEach(function(friend) {
-      const namePos = getNamePosition(values, friend);
+      const namePos = positions[friend];
       const size = getSize(values, namePos);
       
       if(namePos.x < 0 || namePos.y < 0 || size < 1) {

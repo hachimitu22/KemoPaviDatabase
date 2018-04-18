@@ -56,12 +56,13 @@ function createConverterWikiData() {
         
         record.slice(1, record.length).forEach(function(value, index) {
           if (['◎', '○', '△'].indexOf(value) >= 0) {
-            arr.push({
-              'friend': friend,
-              'hobby': pureHobbyName,
-              'area': areaAndTimeZone[index].area,
-              'timeZone': areaAndTimeZone[index].timeZone,
-            });
+            var hobbyRecord = hobbyRecord(
+              friend,
+              pureHobbyName,
+              areaAndTimeZone[index].area,
+              areaAndTimeZone[index].timeZone
+            );
+            arr.push(hobbyRecord);
           }
         });
       });

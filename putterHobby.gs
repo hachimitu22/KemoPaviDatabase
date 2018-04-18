@@ -1,3 +1,12 @@
+function hobbyRecord(friendName, hobbyName, area, timeZone) {
+  return {
+    friend: friendName,
+    hobby: hobbyName,
+    area: area,
+    timeZone: timeZone
+  };
+}
+
 function createPutterHobby() {
   var _class = createPutterBase();
   

@@ -11,14 +11,13 @@ function createConverterMeetList() {
         break;
       }
 
-      arr.push({
-        'friend': line[1],
-        'area': line[2],
-        'timeZone': line[3],
-        'material': line[5],
-        'hobby': line[6],
-        'speech': line[10],
-      });
+      var hobbyRecord = hobbyRecord(
+        line[1],  // friend
+        line[6],  // hobby
+        line[2],  // area
+        line[3]   // timeZone
+      );
+      arr.push(hobbyRecord);
     }
     
     return arr;

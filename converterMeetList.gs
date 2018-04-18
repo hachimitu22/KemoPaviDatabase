@@ -11,7 +11,7 @@ function createConverterMeetList() {
         break;
       }
 
-      var hobbyRecord = hobbyRecord(
+      var hobbyRecord = createHobbyRecord(
         line[1],  // friend
         line[6],  // hobby
         line[2],  // area

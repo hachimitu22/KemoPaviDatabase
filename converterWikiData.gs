@@ -56,7 +56,7 @@ function createConverterWikiData() {
         
         record.slice(1, record.length).forEach(function(value, index) {
           if (['◎', '○', '△'].indexOf(value) >= 0) {
-            var hobbyRecord = hobbyRecord(
+            var hobbyRecord = createHobbyRecord(
               friend,
               pureHobbyName,
               areaAndTimeZone[index].area,

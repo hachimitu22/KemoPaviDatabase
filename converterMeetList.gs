@@ -15,7 +15,9 @@ function createConverterMeetList() {
         line[1],  // friend
         line[6],  // hobby
         line[2],  // area
-        line[3]   // timeZone
+        line[3],  // timeZone
+        '○',     // mark
+        false     // action
       );
       arr.push(hobbyRecord);
     }

@@ -52,7 +52,9 @@ function createConverterWikiData() {
       
       preRecordValues.forEach(function(preRecord) {
         const record = preRecord.slice(namePos.x, namePos.x + areaAndTimeZone.length + 1);
-        const pureHobbyName = record[0].replace(/[\?\*]*/g, '');
+        const hobbyName = record[0];
+        const pureHobbyName = hobbyName.replace(/[\?\*]*/g, '');
+        const hasAction = (hobbyName.indexOf('*') >= 0);
         
         record.slice(1, record.length).forEach(function(value, index) {
           if (['◎', '○', '△'].indexOf(value) >= 0) {
@@ -60,7 +62,9 @@ function createConverterWikiData() {
               friend,
               pureHobbyName,
               areaAndTimeZone[index].area,
-              areaAndTimeZone[index].timeZone
+              areaAndTimeZone[index].timeZone,
+              value,
+              hasAction
             );
             arr.push(hobbyRecord);
           }

@@ -1,9 +1,11 @@
-function createHobbyRecord(friendName, hobbyName, area, timeZone) {
+function createHobbyRecord(friendName, hobbyName, area, timeZone, mark, action) {
   return {
     friend: friendName,
     hobby: hobbyName,
     area: area,
-    timeZone: timeZone
+    timeZone: timeZone,
+    mark: mark,
+    action: action
   };
 }
 

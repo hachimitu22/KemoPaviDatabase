@@ -95,6 +95,13 @@ function getTimeZoneOffsets() {
   return _commondata.timeZoneOffsets;
 }
 
+function getAreaAndTimeZoneOffset(area, timeZone) {
+  const areaOffset = getAreaOffsets()[area];
+  const timeZoneOffset = getTimeZoneOffsets()[timeZone];
+  
+  return areaOffset + timeZoneOffset;
+}
+
 function getFriendNames() {
   if(!_commondata.FriendNames) {
     const ss = getInputSpreadSheet();

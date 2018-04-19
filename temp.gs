@@ -1,68 +1,62 @@
+function charcount(str) {
+  var len = 0;
+  str = escape(str);
+  for (var i = 0; i < str.length; i++, len++) {
+    if (str.charAt(i) == "%") {
+      if (str.charAt(++i) == "u") {
+        i += 3;
+        len++;
+      }
+      i++;
+    }
+  }
+  return len;
+}
+
+function repeat(len, word) {
+  var str = '';
+  for(var i = 0; i < len; i++){
+    str += word;
+  }
+  return str;
+}
+
+function getPukiWikiFormatText(friendPageHobbyRecord) {
+  const hobbyName = friendPageHobbyRecord.hobby;
+  const action = friendPageHobbyRecord.action;
+
+  const link = '[[' + hobbyName + '>あそびどうぐ一覧/' + hobbyName + ']]' + action;
+  const spaces = repeat(80 - charcount(link), ' ');
+  const played = (function() {
+    var arr = [];
+    
+    friendPageHobbyRecord.played.forEach(function(value) {
+      const c = charcount(value);
+      const s = repeat(2 - c, ' ');
+      arr.push(value + s);
+    });
+    
+    return arr;
+  })();
+  
+  const joinText = [link + spaces].concat(played).join('|');
+  return '|' + joinText + '|';
+}
+
+
 function newHobbyData(hobby, action, playedList) {
   return {
     'hobby': hobby,
     'action': action,
-    'played': playedList.slice(),
-    getPukiWikiFormatText: function() {
-      var self = this;
-      
-      const charcount = function (str) {
-        var len = 0;
-        str = escape(str);
-        for (var i = 0; i < str.length; i++, len++) {
-          if (str.charAt(i) == "%") {
-            if (str.charAt(++i) == "u") {
-              i += 3;
-              len++;
-            }
-            i++;
-          }
-        }
-        return len;
-      };
-      const repeat = function(len, word) {
-        var str = '';
-        for(var i = 0; i < len; i++){
-          str += word;
-        }
-        return str;
-      };
-
-      const hobbyLink = '[[' + hobby + ']]' + action;
-      const spaces = repeat(30 - charcount(hobbyLink), ' ');
-      const played = (function() {
-        var arr = [];
-        
-        self.played.forEach(function(value) {
-          const c = charcount(value);
-          const s = repeat(2 - c, ' ');
-          arr.push(value + s);
-        });
-        
-        return arr;
-      })();
-      
-      const joinText = [hobbyLink + spaces].concat(played).join('|');
-      return '|' + joinText + '|';
-    },
+    'played': playedList.slice()  // ディープコピー
   };
 }
 
-function newTableHobbyAndArea(friend, values) {
+function newTableHobbyAndArea(friend, records) {
   var data = {
     'friend': friend,
     'hobbys': {},
   };
-  
-  values.forEach(function(lineValues) {
-    const _hobby = lineValues[0];
-    const hobby = _hobby.replace(/[\*\?]/g, '');
-    const action = (_hobby.indexOf('*') === -1) ? '' : '*';
-    const playedList = lineValues.slice(1, 7);
-
-    data.hobbys[hobby] = newHobbyData(hobby, action, playedList);
-  });
-  
   return data;
 }
 
@@ -70,48 +64,48 @@ function newWikiDataFriends(friends, values) {
   var data = {
     'friends': {},
   };
+  friends.forEach(function (friend) {
+    data.friends[friend] = newTableHobbyAndArea(friend);
+  });
   
-  var getPosition = function(values, friend) {
-    for(var i = 0, len1 = values.length; i < len1; i++) {
-      for(var j = 0, len2 = values[i].length; j < len2; j++) {
-        if(values[i][j] === friend) {
-          return { 'x': j, 'y': i };
-        }
-      }
-    }
-    return { 'x': -1, 'y': -1 };
-  };
-  var getSize = function(values, pos) {
-    var count = 0;
-    for(var i = pos.y + 1; i < values.length; i++) {
-      if(values[i][pos.x] === ''){
-        break;
-      }
-      count++;
-    }
-    
-    return count;
-  };
-  
-  friends.forEach(function(friend) {
-    const pos = getPosition(values, friend);
-    const size = getSize(values, pos);
-    
-    if(pos.x >= 0 && pos.y >= 0 && size >= 1) {
-      const friendValues = (function() {
-        var arr = [];
+  const playedListSize = getAreaOrder().length;
 
-        values.slice(pos.y + 1, pos.y + size + 1).forEach(function(lineValues, index) {
-            arr.push(lineValues.slice(pos.x, pos.x + 6 + 1));
-        });
-        
-        return arr;
-      })();
+  const hobbyRecords = createConverterWikiData().makeDataArray(values, friends, ['◎', '○', '△', '？', '×']);
+  hobbyRecords.forEach(function (record) {
+    const friend = record.friend;
+    const hobby = record.hobby;
+
+    if (!data.friends[friend].hobbys[hobby]) {
+      var arr = [];
+      for(var i = 0; i < playedListSize; i++){
+        arr.push('');
+      }
       
-      data.friends[friend] = newTableHobbyAndArea(friend, friendValues);
+      data.friends[friend].hobbys[hobby] = newHobbyData(
+        hobby,
+        '',
+        arr
+      );
+    }
+    var d = data.friends[friend].hobbys[hobby];
 
+    if (d.action === '') {
+      d.action = (record.action) ? '*' : '';
+    }
+
+    var index = getAreaAndTimeZoneOffset(record.area, record.timeZone);
+    if (record.mark !== '') {
+      d.played[index] = record.mark;
     }
   });
   
   return data;
+}
+
+function test() {
+  var ss = getInputSpreadSheet();
+  const friends = getFriendNamesNotSort();
+  var w = newWikiDataFriends(friends, ss.getSheetByName('wikiからのコピペ').getDataRange().getValues());
+  
+  Logger.log(w);
 }

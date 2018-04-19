@@ -73,9 +73,9 @@ function sortHobbys(hobbys, lands, waters) {
     
     if(hobbys[key]) {
       if(hobbys[key].action === '') {
-        t[1].push(hobbys[key].getPukiWikiFormatText());
+        t[1].push(getPukiWikiFormatText(hobbys[key]));
       } else {
-        t[0].push(hobbys[key].getPukiWikiFormatText());
+        t[0].push(getPukiWikiFormatText(hobbys[key]));
       }
     }
   });
@@ -99,22 +99,29 @@ function getPukiWikiText(friend, lands, waters) {
   var sort = sortHobbys(friend.hobbys, lands, waters);
   
   textArr = textArr.concat(sort);
+  textArr.push(friend.friend);
   
   return textArr;
 }
 
 function putTableHobbyAndFriend() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getInputSpreadSheet();
   const friends = getFriendNamesNotSort();
   var w = newWikiDataFriends(friends, ss.getSheetByName('wikiからのコピペ').getDataRange().getValues());
-  var h = newWikiDataFriends2(friends, ss.getSheetByName('あそびどうぐ').getDataRange().getValues());
+  var h = newWikiDataFriends2(friends, ss.getSheetByName('出会った履歴_入力済み').getDataRange().getValues());
   var baseDataSheet = ss.getSheetByName('_基本データ');
   var lands = transpose(baseDataSheet.getRange('J3:J').getValues())[0].filter(function(values) { return values !== '' });
   var waters = transpose(baseDataSheet.getRange('K3:K').getValues())[0].filter(function(values) { return values !== '' });
   
   var data = combine(friends, w, h);
+  var wtextValues = [];
   var textValues = [];
   
+  Object.keys(w.friends).forEach(function(key, index) {
+    var friend = w.friends[key];
+    var textArr = getPukiWikiText(friend, lands, waters);
+    wtextValues.push(textArr);
+  });
   Object.keys(data.friends).forEach(function(key, index) {
     var friend = data.friends[key];
     var textArr = getPukiWikiText(friend, lands, waters);
@@ -124,21 +131,32 @@ function putTableHobbyAndFriend() {
   (function() {
     var kopipeSheet = ss.getSheetByName('wikiへのコピペ用2');
     
-    var range = kopipeSheet.getRange(1, 1, 200, 100);
+    var range = kopipeSheet.getRange(1, 1, 4000, 10);
     range.clearContent();
     var values = range.getValues();
 
-    
-    textValues.forEach(function(textArr, x) {
-      const _x = x + 0;
+    var _y = 0;
+    textValues.forEach(function(textArr) {
+      const _x = 0;
 
       textArr.forEach(function(text, y) {
-        const _y = y + 3;
-
         values[_y][_x] = text;
+        _y++;
       });
+      _y++;
     });
     
+    _y = 0;
+    wtextValues.forEach(function(textArr) {
+      const _x = 1;
+
+      textArr.forEach(function(text, y) {
+        values[_y][_x] = text;
+        _y++;
+      });
+      _y++;
+    });
+
     range.setValues(values);
   })();
 }

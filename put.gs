@@ -8,7 +8,7 @@ function putWikiToHobby() {
 
   const values = wikiSheet.getDataRange().getValues();
 
-  var dataArray = createConverterWikiData().makeDataArray(values, friends);
+  var dataArray = createConverterWikiData().makeDataArray(values, friends, ['◎', '○', '△']);
 
   createPutterHobby().putCheckMark(ss.getSheetByName('あそびどうぐ'), dataArray, '○', true);
 }

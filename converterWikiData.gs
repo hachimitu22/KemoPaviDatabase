@@ -1,6 +1,6 @@
 function createConverterWikiData() {
   var _class = createConverterBase();
-  const targets = ['◎', '○', '△'];
+//  const targets = ['◎', '○', '△'];
   const areaAndTimeZone = getAreaOrder();
   const recordStartOffset = 3;
 
@@ -33,7 +33,7 @@ function createConverterWikiData() {
     return count;
   };
   
-  _class.makeDataArray = function(values, friends) {
+  _class.makeDataArray = function(values, friends, enableMarks) {
     var arr = [];
     const positions = getNamePositions(values, friends);
     
@@ -57,7 +57,7 @@ function createConverterWikiData() {
         const hasAction = (hobbyName.indexOf('*') >= 0);
         
         record.slice(1, record.length).forEach(function(value, index) {
-          if (['◎', '○', '△'].indexOf(value) >= 0) {
+          if (enableMarks.indexOf(value) >= 0) {
             var hobbyRecord = createHobbyRecord(
               friend,
               pureHobbyName,

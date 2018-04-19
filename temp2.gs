@@ -1,79 +1,41 @@
-function newTableHobbyAndArea2(friend, values) {
-  var data = {
-    'friend': friend,
-    'hobbys': {},
-  };
-  
-  values.forEach(function(lineValues) {
-    const _hobby = lineValues[0]
-    const hobby = _hobby.replace(/[\*\?]/g, '');
-    const action = (_hobby.indexOf('*') === -1) ? '' : '*';
-    const playedList = lineValues.slice(1, 7);
-
-    data.hobbys[hobby] = newHobbyData(hobby, action, playedList);
-  });
-  
-  return data;
-}
-
 function newWikiDataFriends2(friends, values) {
   var data = {
     'friends': {},
   };
+  friends.forEach(function (friend) {
+    data.friends[friend] = newTableHobbyAndArea(friend);
+  });
   
-  var getPosition = function(values, friend) {
-    const x = 4;
-    const y = (function() {
-      var _y = -1;
-      
-      values.some(function(lineValues, index) {
-        if(lineValues[1] === friend) {
-          _y = index;
-          return true;
-        }
-      });
-      
-      return _y;
-    })();
-    
-    if(y >= 0) {
-      return { 'x': x, 'y': y };
-    } else {
-      return { 'x': -1, 'y': -1 };
-    }
-  };
-  var getSize = function(values) {
-    const _values = values[2].slice(4, values[2].length);
-    var count = 0;
-    
-    for(var i = 0; i < _values.length; i++) {
-      if(_values[i] === ''){
-        break;
+  const playedListSize = getAreaOrder().length;
+
+  const hobbyRecords = createConverterMeetList().makeDataArray(values, friends);
+  hobbyRecords.forEach(function (record) {
+    const friend = record.friend;
+    const hobby = record.hobby;
+
+    if (!data.friends[friend].hobbys[hobby]) {
+      var arr = [];
+      for(var i = 0; i < playedListSize; i++){
+        arr.push('');
       }
-      count++;
-    }
-    
-    return count;
-  };
-
-  const size = getSize(values);
-  
-  friends.forEach(function(friend) {
-    const pos = getPosition(values, friend);
-    
-    if(pos.x >= 0 && pos.y >= 0 && size >= 1) {
-      var hobbyValues = [values[2].slice(4, 4 + size)];
-      var markValues = (function() {
-        var arr = [];
-
-        values.slice(pos.y, pos.y + 6).forEach(function(lineValues) {
-          arr.push(lineValues.slice(pos.x, pos.x + size));
-        });
-        
-        return arr;
-      })();
       
-      data.friends[friend] = newTableHobbyAndArea2(friend, transpose(hobbyValues.concat(markValues)));
+      data.friends[friend].hobbys[hobby] = newHobbyData(
+        hobby,
+        '',
+        arr
+      );
+    }
+    var d = data.friends[friend].hobbys[hobby];
+
+    if (d.action === '') {
+      d.action = (record.action) ? '*' : '';
+    }
+
+    var index = getAreaAndTimeZoneOffset(record.area, record.timeZone);
+    if (record.mark !== '') {
+      if (['◎', '○', '△'].indexOf(d.played[index]) <= -1) {
+        d.played[index] = record.mark;
+      }
     }
   });
   
@@ -81,16 +43,9 @@ function newWikiDataFriends2(friends, values) {
 }
 
 function test2() {
-  var test = createTest('putter');
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  const friends = ['サーバル'];
+  var ss = getInputSpreadSheet();
+  const friends = getFriendNamesNotSort();
+  var w = newWikiDataFriends2(friends, ss.getSheetByName('出会った履歴_入力済み').getDataRange().getValues());
   
-  test.suite('newWikiDataFriends2', function() {
-    const s = ss.getSheetByName('あそびどうぐ')
-    const values = s.getDataRange().getValues();
-    
-    var data = newWikiDataFriends2(friends, values);
-    
-    Logger.log(Object.keys(data.friends['サーバル'].hobbys));
-  });
+  Logger.log(w);
 }
